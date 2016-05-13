@@ -1,0 +1,599 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is the RESTAPI to get sensor's measurement into the Sociot Platform. You can find out more about Sociot at <a href='http://sociot.10gos.com'>http://sociot.10gos.com</a>.",
+    "version": "1.0.0",
+    "title": "Sociot API",
+    "contact": {
+      "name": "API Team",
+      "url": "http://sociot.10gos.com",
+      "email": "dyga@10gos.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host": "api.sociot.10gos.com:443",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "Sensor",
+      "description": "Operations about sensors"
+    },
+    {
+      "name": "User",
+      "description": "Operations about user"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/sensor": {
+      "get": {
+        "tags": [
+          "Sensor"
+        ],
+        "summary": "Get the list of active sensors",
+        "description": "Get the list of active sensors",
+        "consumes": [],
+        "produces": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Sensor"
+        ],
+        "summary": "Add a new sensor",
+        "description": "Add a new sensor",
+        "operationId": "addSensor",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/Sensor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "405": {
+            "description": "Error 405"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Sensor"
+        ],
+        "summary": "Update an existing sensor",
+        "description": "Update an existing sensor",
+        "operationId": "updateSensor",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/Sensor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Error 400"
+          },
+          "404": {
+            "description": "Error 404"
+          },
+          "405": {
+            "description": "Error 405"
+          }
+        }
+      }
+    },
+    "/sensor/findByStatus": {
+      "get": {
+        "tags": [
+          "Sensor"
+        ],
+        "summary": "Finds Sensors by status",
+        "description": "Finds Sensors by status",
+        "operationId": "findSensorsByStatus",
+        "consumes": [],
+        "produces": [],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status values that need to be considered for filter",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "default": "available"
+            },
+            "collectionFormat": "multi",
+            "enum": [
+              "available",
+              "pending",
+              "sold"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Sensor"
+              }
+            }
+          },
+          "400": {
+            "description": "Error 400"
+          }
+        }
+      }
+    },
+    "/sensor/findByTags": {
+      "get": {
+        "tags": [
+          "Sensor"
+        ],
+        "summary": "Finds sensors by tags",
+        "description": "Finds sensors by tags",
+        "operationId": "findSensorsByTags",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "tags",
+            "in": "query",
+            "description": "Tags to filter by",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Sensor"
+              }
+            }
+          },
+          "400": {
+            "description": "Error 400"
+          }
+        }
+      }
+    },
+    "/sensor/{sensorId}": {
+      "get": {
+        "tags": [
+          "Sensor"
+        ],
+        "summary": "Find sensor by ID",
+        "description": "Find sensor by ID",
+        "operationId": "getSensorById",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Sensor"
+            }
+          },
+          "400": {
+            "description": "Error 400"
+          },
+          "404": {
+            "description": "Error 404"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Sensor"
+        ],
+        "summary": "Updates a sensor definition with form data",
+        "description": "Updates a sensor definition with form data",
+        "operationId": "updateSensorWithForm",
+        "consumes": [],
+        "produces": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "405": {
+            "description": "Error 405"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Sensor"
+        ],
+        "summary": "Deletes a sensor",
+        "description": "Deletes a sensor",
+        "operationId": "deleteSensor",
+        "consumes": [],
+        "produces": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Error 400"
+          }
+        }
+      }
+    },
+    "/user": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Create user",
+        "description": "Create user",
+        "operationId": "createUser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/user/createWithArray": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Creates list of users with given input array",
+        "description": "Creates list of users with given input array",
+        "operationId": "createUsersWithArrayInput",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/user/createWithList": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Creates list of users with given list input",
+        "description": "Creates list of users with given list input",
+        "operationId": "createUsersWithListInput",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/user/{userlogin}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get user by user name",
+        "description": "Get user by user name",
+        "operationId": "getUserByName",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userlogin",
+            "in": "path",
+            "description": "name that need to be deleted",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Error 400"
+          },
+          "404": {
+            "description": "Error 404"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Updated user",
+        "description": "Updated user",
+        "operationId": "updateUser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [],
+        "parameters": [
+          {
+            "name": "userlogin",
+            "in": "path",
+            "description": "name that need to be deleted",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Error 400"
+          },
+          "404": {
+            "description": "Error 404"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Delete user",
+        "description": "Delete user",
+        "operationId": "deleteUser",
+        "consumes": [],
+        "produces": [],
+        "parameters": [
+          {
+            "name": "userlogin",
+            "in": "path",
+            "description": "name that need to be deleted",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Error 400"
+          },
+          "404": {
+            "description": "Error 404"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Category": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Sensor": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "user"
+      ],
+      "properties": {
+        "category": {
+          "$ref": "#/definitions/Category"
+        },
+        "id": {
+          "type": "string",
+          "description": "Universal Unique Identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Short name"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      },
+      "description": "Specific data related with the sensor identity, features and events the sensor will produce"
+    },
+    "SensorEvent": {
+      "type": "object",
+      "required": [
+        "id",
+        "time"
+      ],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "notifications": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SensorNotification"
+          }
+        },
+        "time": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "description": ""
+    },
+    "SensorNotification": {
+      "type": "object",
+      "required": [
+        "time",
+        "type"
+      ],
+      "properties": {
+        "data": {
+          "type": "string"
+        },
+        "time": {
+          "type": "string",
+          "format": "date"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "description": "Notification message with sensor data"
+    },
+    "Tag": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "userStatus": {
+          "type": "integer",
+          "format": "int32",
+          "description": "User Status"
+        },
+        "userlogin": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

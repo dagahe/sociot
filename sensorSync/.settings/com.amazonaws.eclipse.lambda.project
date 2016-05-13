@@ -1,0 +1,5 @@
+#Lambda Function Project Metadata
+#Fri May 13 07:19:15 CEST 2016
+lastDeploymentFunctionName=SensorSynchronization
+lastDeploymentBucketName=labs.10gos.com
+lastDeploymentEndpoint=https\://lambda.eu-west-1.amazonaws.com/
