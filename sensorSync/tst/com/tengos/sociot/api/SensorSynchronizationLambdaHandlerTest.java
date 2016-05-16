@@ -10,10 +10,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.util.json.JSONException;
+import com.amazonaws.util.json.JSONObject;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 
 import junit.framework.Assert;
 
@@ -31,12 +34,12 @@ public class SensorSynchronizationLambdaHandlerTest {
 					NotificationConstant.NotificationType.TEMPERATURE.name(), "22")};
 
 	@BeforeClass
-	public static void createInput() throws IOException {
+	public static void createInput() throws IOException, JSONException {
 		// SensorEvent instance under test
 		input = new SensorEvent("0001", new Date(System.currentTimeMillis()), "Temperature measurement", notifications);
 		// SensorEvent instance under test but as JSON string
 		ObjectMapper mapper = new ObjectMapper();
-		inputString = mapper.writeValueAsString(input);
+		inputString = "{\"path\": {\"sensorId\": \"0001\"}, \"querystring\":{}, \"header\":{}, \"stage-variables\":{}, \"context\":{},\"body-json\":" + mapper.writeValueAsString(input) + "}";
 	}
 
 	private Context createContext() {
@@ -49,7 +52,7 @@ public class SensorSynchronizationLambdaHandlerTest {
 	public void testSensorSynchronization() {
 		SensorSynchronizationLambdaHandler handler = new SensorSynchronizationLambdaHandler();
 		Context ctx = createContext();
-		SensorEventResponse output = handler.handleRequest(input, ctx);
+		SensorEventResponse output  = handler.handleRequest(inputString, ctx);
 		if (output != null) {
 			System.out.println(output.toString());
 		}

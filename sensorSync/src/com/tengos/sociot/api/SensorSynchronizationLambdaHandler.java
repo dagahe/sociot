@@ -10,34 +10,91 @@ import java.util.Map;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.util.json.JSONException;
+import com.amazonaws.util.json.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class SensorSynchronizationLambdaHandler implements RequestHandler<SensorEvent, SensorEventResponse> {
+/**
+ * Handler in charge of drive the sensor synchronization call coming in from the
+ * Sociot API
+ * 
+ * @author dannygarciahernandez
+ *
+ */
+public class SensorSynchronizationLambdaHandler implements RequestHandler<String, SensorEventResponse> {
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSSZ");
+	private ObjectMapper mapper = new ObjectMapper();
+	private DynamoDB dynamoDB = new DynamoDB(Regions.EU_WEST_1);
 
 	@Override
-	public SensorEventResponse handleRequest(SensorEvent input, Context context) {
-		context.getLogger().log("Input: " + input.toString());
-		SensorEvenNotification[] notifications = input.getNotifications();
-		if (notifications != null && notifications.length > 0) {
-			// Get DynamoCLient and send SensorEvent
-			AmazonDynamoDBClient dc = new AmazonDynamoDBClient(
-					new BasicAWSCredentials("AKIAID272RX7TAE6QLQQ", "hEDU6DdViYzpMfCNj9LQYa9NRia/qAS3rjg8C5jc"))
-							.withRegion(Regions.EU_WEST_1);
-			// Fill the map to put into DynamoDB
-			List<Map<String, AttributeValue>> se = getAsList("0001", notifications);
-			for (Iterator<Map<String, AttributeValue>> iterator = se.iterator(); iterator.hasNext();) {
-				Map<String, AttributeValue> map = (Map<String, AttributeValue>) iterator.next();
-				dc.putItem(NotificationConstant.notificationTableName, map);
+	/**
+	 * API requests are transformed into JSON (using Aws request template) and
+	 * passed to the the handler as String
+	 * 
+	 * @param input:
+	 *            contains a valid JSON created from the queryString, parameters
+	 *            and body (need a )
+	 * @param output
+	 * @param context
+	 */
+	public SensorEventResponse handleRequest(String json, Context context) {
+		Map<String, JSONObject> jsonObjects;
+		try {
+			jsonObjects = getJSONObjects(json);
+			// Get accessKey
+			String accessKey = jsonObjects.get("path").getString("accessKey");
+			context.getLogger().log(String.format("Request received with accessKey: %s", accessKey));
+			// Get User from DynamoDB
+			User user = getUserByAccessKey(accessKey);
+
+			// Get sensorId from path: {sensorId:"8787878792"}
+			String sensorId = jsonObjects.get("path").getString("sensorId");
+
+			// body-json key contains the entity, in this case a SensorEvent
+			SensorEvent input = mapper.readValue(jsonObjects.get("body-json").toString(), SensorEvent.class);
+			// Log the input
+			context.getLogger()
+					.log(String.format("Sensor %s is sending the following data: %s", sensorId, input.toString()));
+			// Start the notifications processing
+			SensorEvenNotification[] notifications = input.getNotifications();
+			if (notifications != null && notifications.length > 0) {
+				// Get DynamoCLient and send SensorEvent
+				AmazonDynamoDBClient dc = new AmazonDynamoDBClient(
+						new BasicAWSCredentials("AKIAID272RX7TAE6QLQQ", "hEDU6DdViYzpMfCNj9LQYa9NRia/qAS3rjg8C5jc"))
+								.withRegion(Regions.EU_WEST_1);
+				// Fill the map to put into DynamoDB
+				List<Map<String, AttributeValue>> se = getAsList(sensorId, notifications);
+				for (Iterator<Map<String, AttributeValue>> iterator = se.iterator(); iterator.hasNext();) {
+					Map<String, AttributeValue> map = (Map<String, AttributeValue>) iterator.next();
+					dc.putItem(NotificationConstant.notificationTableName, map);
+				}
+				return new SensorEventResponse(SensorEventResponseStatus.OK.toString(),
+						String.format("Request processed with %s notifications", notifications.length));
 			}
 			return new SensorEventResponse(SensorEventResponseStatus.OK.toString(),
-					String.format("Request processed with %s notifications", notifications.length));
+					String.format("Request processed with %s notifications", 0));
+		} catch (Exception e) {
+			return new SensorEventResponse(SensorEventResponseStatus.ERROR.toString(),
+					String.format("Request processed failed with exception: %s", e.getMessage()));
 		}
-		return new SensorEventResponse(SensorEventResponseStatus.OK.toString(),
-				String.format("Request processed with %s notifications", 0));
+	}
+
+	private User getUserByAccessKey(String accessKey) throws Exception {
+		Table table = dynamoDB.getTable(NotificationConstant.USER_TABLE_NAME);
+		GetItemSpec spec = new GetItemSpec().withPrimaryKey(NotificationConstant.USER_RANGEKEY_NAME, accessKey);
+		Item item = table.getItem(spec);
+		if (item != null)
+			return mapper.readValue(item.toJSON(), User.class);
+		else
+			throw new Exception(String.format("No user found for accesKey: %s", accessKey));
 
 	}
 
@@ -47,7 +104,7 @@ public class SensorSynchronizationLambdaHandler implements RequestHandler<Sensor
 			SensorEvenNotification sensorEvenNotification = notifications[i];
 			Map<String, AttributeValue> map = getAsMap(sensorEvenNotification);
 			map.put(NotificationConstant.notificationSensorIdCN, new AttributeValue(sensorId));
-			l.add(map);			
+			l.add(map);
 		}
 		return l;
 	}
@@ -62,6 +119,18 @@ public class SensorSynchronizationLambdaHandler implements RequestHandler<Sensor
 		map.put(NotificationConstant.notificationLatitudeCN,
 				new AttributeValue(String.valueOf(notification.getLatitude())));
 		return map;
+	}
+
+	private Map<String, JSONObject> getJSONObjects(String input) throws JSONException {
+		HashMap<String, JSONObject> objects = new HashMap<String, JSONObject>();
+		JSONObject object = new JSONObject(input);
+		objects.put("path", object.getJSONObject("path"));
+		objects.put("querystring", object.getJSONObject("querystring"));
+		objects.put("header", object.getJSONObject("header"));
+		objects.put("body-json", object.getJSONObject("body-json"));
+		objects.put("stage-variables", object.getJSONObject("stage-variables"));
+		objects.put("context", object.getJSONObject("context"));
+		return objects;
 	}
 
 }
