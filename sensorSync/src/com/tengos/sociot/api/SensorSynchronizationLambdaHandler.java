@@ -68,7 +68,7 @@ public class SensorSynchronizationLambdaHandler implements RequestHandler<String
 			if (notifications != null && notifications.length > 0) {
 				// Get DynamoCLient and send SensorEvent
 				AmazonDynamoDBClient dc = new AmazonDynamoDBClient(
-						new BasicAWSCredentials("AKIAID272RX7TAE6QLQQ", "hEDU6DdViYzpMfCNj9LQYa9NRia/qAS3rjg8C5jc"))
+						new BasicAWSCredentials("", ""))
 								.withRegion(Regions.EU_WEST_1);
 				// Fill the map to put into DynamoDB
 				List<Map<String, AttributeValue>> se = getAsList(sensorId, notifications);
