@@ -20,7 +20,7 @@ public class SensorRegistryLambdaHandler implements RequestHandler<SensorRegistr
     public SensorRegistryEventResponse handleRequest(SensorRegistryEvent input, Context context) {
         context.getLogger().log("Input: " + input.toString());
         //Get DynamoCLient and send SensorEvent 
-        AmazonDynamoDBClient dc = new AmazonDynamoDBClient(new BasicAWSCredentials("AKIAID272RX7TAE6QLQQ", "hEDU6DdViYzpMfCNj9LQYa9NRia/qAS3rjg8C5jc")).withRegion(Regions.EU_WEST_1);
+        AmazonDynamoDBClient dc = new AmazonDynamoDBClient(new BasicAWSCredentials("", "")).withRegion(Regions.EU_WEST_1);
         //Fill the map to put into DynamoDB
         Map<String, AttributeValue> se = getAsMap(input);
         se.put(SensorConstant.sensorUserIdCN, new AttributeValue(context.getAwsRequestId()));
