@@ -104,23 +104,20 @@ public class DDBSensorDAO implements SensorDAO {
 		// Evaluation filter
 		Map<String, AttributeValue> eav = new HashMap<String, AttributeValue>();
 		eav.put(":sensorId", new AttributeValue().withS(sensors[0]));
-		eav.put(":from", new AttributeValue().withS(from.toString()));
-		eav.put(":to", new AttributeValue().withS(to.toString()));
+		eav.put(":from", new AttributeValue().withS(DynamoDBConfiguration.DATE_TIME_FORMATTER.print(from)));
+		eav.put(":to", new AttributeValue().withS(DynamoDBConfiguration.DATE_TIME_FORMATTER.print(to)));
 
 		// Expression
 		DynamoDBQueryExpression<SensorEventNotification> qe = new DynamoDBQueryExpression<SensorEventNotification>();
 		qe.withKeyConditionExpression("(sensorId = :sensorId and (notificationDateTime between :from and :to))");
-		qe.withExpressionAttributeValues(eav);
-
 		// Check type filter
 		String[] types = request.getSensorTypeList();
-		String fe = "";
 		if (types != null && types.length > 0) {
-			for (int i = 0; i < types.length; i++) {
-				fe = fe + String.format(" and notificationType = %s", types[i]);
-			}
-			qe.withFilterExpression(fe);
+			eav.put(":types", new AttributeValue().withS(types[0]));
+			qe.withFilterExpression("(contains(notificationType,:types))");
 		}
+		qe.withExpressionAttributeValues(eav);
+
 		PaginatedQueryList<SensorEventNotification> list = getMapper().query(SensorEventNotification.class, qe);
 		return list != null ? list.toArray(new SensorEventNotification[list.size()]) : null;
 	}

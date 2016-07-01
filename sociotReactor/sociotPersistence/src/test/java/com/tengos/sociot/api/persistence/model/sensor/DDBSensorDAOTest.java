@@ -44,8 +44,9 @@ public class DDBSensorDAOTest {
 		// Create GetNotificationRequest
 		GetNotificationsRequest request = new GetNotificationsRequest();
 		request.setSensorIdList(new String[] { "0001" });
-		request.setTo(DateTime.now());
-		request.setSensorTypeList(new String[] { "TEMPERATURE", "HUMIDITY" });
+		request.setSensorTypeList(new String[] { "TEMPERATURE" });
+		request.setFrom(DateTime.parse("2016-06-11"));
+		request.setTo(DateTime.parse("2016-06-14"));
 		SensorEventNotification[] notifications = dao.getNotifications(request);
 		Assert.assertTrue(notifications.length > 0);
 	}
