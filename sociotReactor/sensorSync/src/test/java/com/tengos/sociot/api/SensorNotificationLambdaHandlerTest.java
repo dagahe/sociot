@@ -1,6 +1,5 @@
 package com.tengos.sociot.api;
 
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,8 +24,8 @@ public class SensorNotificationLambdaHandlerTest {
 		GetNotificationsRequest request = new GetNotificationsRequest();
 		request.setSensorIdList(new String[] { "0001" });
 		request.setSensorTypeList(new String[] { "TEMPERATURE" });
-		request.setFrom(DateTime.parse("2016-06-11"));
-		request.setTo(DateTime.parse("2016-06-14"));
+		request.setFrom("2016-06-11");
+		request.setTo("2016-06-14");
 		GetNotificationResponse response = handler.handleRequest(request, ctx);
 		System.out.println(response.getNotifications().length);
 		Assert.assertTrue(response.getStatus() == SensorEventResponseStatus.OK.toString());

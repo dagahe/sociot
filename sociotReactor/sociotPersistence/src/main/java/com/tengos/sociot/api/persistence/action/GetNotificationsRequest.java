@@ -3,11 +3,8 @@
  */
 package com.tengos.sociot.api.persistence.action;
 
-import org.joda.time.DateTime;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tengos.sociot.api.persistence.configuration.DynamoDBConfiguration;
 
 /**
  * @author dannygarciahernandez
@@ -17,8 +14,8 @@ public class GetNotificationsRequest {
 
 	private String[] sensorIdList;
 	private String[] sensorTypeList;
-	private DateTime from;
-	private DateTime to;
+	private String from;
+	private String to;
 
 	public GetNotificationsRequest() {
 		super();
@@ -31,8 +28,8 @@ public class GetNotificationsRequest {
 		super();
 		this.sensorIdList = sensorIdList;
 		this.sensorTypeList = sensorTypeList;
-		this.from = DynamoDBConfiguration.DATE_TIME_FORMATTER.parseDateTime(from);
-		this.to = DynamoDBConfiguration.DATE_TIME_FORMATTER.parseDateTime(to);
+		this.from = from;
+		this.to = to;
 	}
 
 	@JsonProperty(value = "sensorIdList")
@@ -44,7 +41,7 @@ public class GetNotificationsRequest {
 		this.sensorIdList = sensorIdList;
 	}
 
-	@JsonProperty(value = "sensorIdList")
+	@JsonProperty(value = "sensorTypeList")
 	public String[] getSensorTypeList() {
 		return sensorTypeList;
 	}
@@ -54,20 +51,20 @@ public class GetNotificationsRequest {
 	}
 
 	@JsonProperty(value = "from")
-	public DateTime getFrom() {
+	public String getFrom() {
 		return from;
 	}
 
-	public void setFrom(DateTime from) {
+	public void setFrom(String from) {
 		this.from = from;
 	}
 
 	@JsonProperty(value = "to")
-	public DateTime getTo() {
+	public String getTo() {
 		return to;
 	}
 
-	public void setTo(DateTime to) {
+	public void setTo(String to) {
 		this.to = to;
 	}
 

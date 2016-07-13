@@ -31,9 +31,9 @@ public class SensorSynchronizationLambdaHandlerTest {
 		// SensorEvent instance under test
 		List<SensorEventNotification> notifications = new ArrayList<SensorEventNotification>();
 		notifications.add(new SensorEventNotification("", "", "", "0001", DateTime.now().toString(),
-				SensorEventNotificationType.TEMPERATURE.name(), "20", Double.NaN, Double.NaN));
+				SensorEventNotificationType.TEMPERATURE.name(), "20", 0, 0));
 		notifications.add(new SensorEventNotification("", "", "", "0001", DateTime.now().toString(),
-				SensorEventNotificationType.TEMPERATURE.name(), "22", Double.NaN, Double.NaN));
+				SensorEventNotificationType.TEMPERATURE.name(), "22", 0, 0));
 		input = new SensorEvent("0001", notifications);
 	}
 

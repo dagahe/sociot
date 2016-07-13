@@ -86,16 +86,18 @@ public class DDBSensorDAO implements SensorDAO {
 
 	@Override
 	public SensorEventNotification[] getNotifications(GetNotificationsRequest request) throws DAOException {
-		DateTime to = request.getTo();
-		DateTime from = request.getFrom();
+		String to = request.getTo();
+		String from = request.getFrom();
 
 		// Check date values to filter
 		if (request.getTo() == null) {
-			to = DateTime.now();
+			to = DynamoDBConfiguration.DATE_TIME_FORMATTER.print(DateTime.now());
 		}
 
 		if (request.getFrom() == null) {
-			from = to.minusDays(1); // 24 hours ago
+			from = DynamoDBConfiguration.DATE_TIME_FORMATTER.print(DateTime.now().minusDays(1)); // 24
+																									// hours
+																									// ago
 		}
 
 		// Sensor list to filter
@@ -104,8 +106,8 @@ public class DDBSensorDAO implements SensorDAO {
 		// Evaluation filter
 		Map<String, AttributeValue> eav = new HashMap<String, AttributeValue>();
 		eav.put(":sensorId", new AttributeValue().withS(sensors[0]));
-		eav.put(":from", new AttributeValue().withS(DynamoDBConfiguration.DATE_TIME_FORMATTER.print(from)));
-		eav.put(":to", new AttributeValue().withS(DynamoDBConfiguration.DATE_TIME_FORMATTER.print(to)));
+		eav.put(":from", new AttributeValue().withS(from));
+		eav.put(":to", new AttributeValue().withS(to));
 
 		// Expression
 		DynamoDBQueryExpression<SensorEventNotification> qe = new DynamoDBQueryExpression<SensorEventNotification>();
